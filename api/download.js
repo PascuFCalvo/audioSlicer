@@ -9,17 +9,22 @@ import axios from "axios";
 import FormData from "form-data";
 import dotenv from "dotenv";
 
+// Configuración de ffmpeg
 ffmpeg.setFfmpegPath(ffmpegStatic);
+
+// Configuración de dotenv para leer variables de entorno
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3000;
 
-app.use(express.static(path.join(__dirname, "public")));
+// Configuración de middleware
+app.use(express.static(path.join(__dirname, "../public")));
 app.use(express.urlencoded({ extended: true }));
 
+// Ruta de inicio
 app.get("/", (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -38,12 +43,11 @@ app.get("/", (req, res) => {
     <body>
       <div class="container">
         <h1>Descargar audio de YouTube</h1>
-        <form action="/download" method="POST" onsubmit="showLoading()">
+        <form action="/api/download" method="POST" onsubmit="showLoading()">
           <input type="text" name="url" placeholder="Ingresa la URL del video de YouTube" required />
           <button type="submit">Descargar MP3</button>
         </form>
       </div>
-      <!-- Pantalla de carga con el spinner -->
       <div id="loading" class="hidden">
         <span class="loader"></span>
         <p>Analizando la música...</p>
@@ -53,9 +57,10 @@ app.get("/", (req, res) => {
   `);
 });
 
+// Ruta para la descarga y análisis del audio
 app.post("/download", async (req, res) => {
   const url = req.body.url;
-  const downloadDir = path.resolve(__dirname, "downloads");
+  const downloadDir = path.resolve(__dirname, "../downloads");
 
   if (!fs.existsSync(downloadDir)) {
     fs.mkdirSync(downloadDir);
@@ -181,6 +186,4 @@ app.post("/download", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
-});
+export default app;
